@@ -86,6 +86,11 @@ Not as important; but there is also ```ForgottenAsTarget()```. Override this and
 ![image](https://github.com/user-attachments/assets/9194f5c7-d339-43f6-9e5f-550d60b5f72e)
 
 ---
+## Tutorial Video
+
+[![Watch the video](https://img.youtube.com/vi/C9gw4YmVxj0/maxresdefault.jpg)](https://www.youtube.com/watch?v=C9gw4YmVxj0)
+
+---
 
 ## License
 This plugin is licensed under **CC BY-NC 4.0**.  
