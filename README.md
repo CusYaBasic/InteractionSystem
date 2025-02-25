@@ -84,3 +84,12 @@ Not as important; but there is also ```BecomeTarget()```. Override this and you 
 Not as important; but there is also ```ForgottenAsTarget()```. Override this and you can add funtionality for when the ```Interactable``` is no longer the ```TargetActor```
 
 ![image](https://github.com/user-attachments/assets/9194f5c7-d339-43f6-9e5f-550d60b5f72e)
+
+---
+
+## License
+This plugin is licensed under **CC BY-NC 4.0**.  
+You can use it for free in commercial and personal projects, but **you cannot sell or distribute** this plugin or any modified version of it.  
+See the full license: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
+
+---
