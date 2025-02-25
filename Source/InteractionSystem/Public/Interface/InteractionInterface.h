@@ -14,12 +14,23 @@ class UInteractionInterface : public UInterface
 };
 
 /**
- * 
+ * Interface for objects that can be interacted with, become targets, and be forgotten as targets.
  */
 class INTERACTIONSYSTEM_API IInteractionInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+
+	// Function for interacting with the object
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void Interact();
+
+	// Function to make this object a target
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void BecomeTarget();
+
+	// Function to forget this object as a target
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void ForgottenAsTarget();
 };
