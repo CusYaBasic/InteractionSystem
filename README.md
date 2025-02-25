@@ -2,7 +2,7 @@
  This is an Interaction System for Unreal Engine 5; It handles player interaction with any interactable world object.
 
 ### Pros:
-* Pretty much plug and play; All logic is ran from a single actor component ```InteractionComponent```
+* Pretty much plug and play; All logic is ran from a single actor component ```InteractionComponent``` and a interface ```InteractionInterface```
 * Uses interfaces; So no need to reparent any of your existing actors to a base interactable class
 * Easy to use; Straight-forward with no bloat
 * Blueprint accessable; No code required
