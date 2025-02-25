@@ -103,17 +103,12 @@ bool UInteractionComponent::SetTargetActor(AActor* NewTarget)
 
 	if (!IsValid(TargetActor))
 	{
-		IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(TargetActor);
-
-		if (InteractionInterface)
-			InteractionInterface->ForgottenAsTarget();
+		if (NewTarget->Implements<UInteractionInterface>())
+		{
+			IInteractionInterface::Execute_BecomeTarget(NewTarget);
+		}
 
 		TargetActor = NewTarget;
-		InteractionInterface = Cast<IInteractionInterface>(TargetActor);
-
-		if (InteractionInterface)
-			InteractionInterface->BecomeTarget();
-
 		OnTargetActorUpdated.Broadcast(NewTarget);
 		HandleDebug(EInteractionLogType::Success, "UInteractionComponent::SetTargetActor: Target has been set");
 		return true;
@@ -122,17 +117,17 @@ bool UInteractionComponent::SetTargetActor(AActor* NewTarget)
 	{
 		if (TargetActor != NewTarget)
 		{
-			IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(TargetActor);
+			if (TargetActor->Implements<UInteractionInterface>())
+			{
+				IInteractionInterface::Execute_ForgottenAsTarget(TargetActor);
+			}
 
-			if (InteractionInterface)
-				InteractionInterface->ForgottenAsTarget();
+			if (NewTarget->Implements<UInteractionInterface>())
+			{
+				IInteractionInterface::Execute_BecomeTarget(NewTarget);
+			}
 
 			TargetActor = NewTarget;
-			InteractionInterface = Cast<IInteractionInterface>(TargetActor);
-
-			if (InteractionInterface)
-				InteractionInterface->BecomeTarget();
-
 			OnTargetActorUpdated.Broadcast(NewTarget);
 			HandleDebug(EInteractionLogType::Success, "UInteractionComponent::SetTargetActor: Target has been set");
 			return true;
@@ -151,10 +146,10 @@ bool UInteractionComponent::ClearTargetActor()
 	if (!IsValid(TargetActor))
 		return false;
 
-	IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(TargetActor);
-
-	if (InteractionInterface)
-		InteractionInterface->ForgottenAsTarget();
+	if (TargetActor->Implements<UInteractionInterface>())
+	{
+		IInteractionInterface::Execute_ForgottenAsTarget(TargetActor);
+	}
 
 	OnTargetActorForgotten.Broadcast(TargetActor);
 	TargetActor = NULL;
@@ -222,12 +217,9 @@ void UInteractionComponent::PerformInteractionTrace()
 
 void UInteractionComponent::InteractWithTargetActor()
 {
-	if (!IsValid(TargetActor))
-		return;
-
-	IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(TargetActor);
-
-	if (InteractionInterface)
-		InteractionInterface->Interact();
+	if (IsValid(TargetActor) && TargetActor->Implements<UInteractionInterface>())
+	{
+		IInteractionInterface::Execute_Interact(TargetActor);
+	}
 }
 
