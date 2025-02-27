@@ -49,40 +49,42 @@ void UInteractionComponent::OnUnregister()
 
 void UInteractionComponent::HandleDebug(EInteractionLogType InLogType, FString Message)
 {
-	if (bPrintDebug)
-	{
+	#if !UE_SHIPPING_BUILD
+		if (bPrintDebug)
+		{
+			switch (InLogType)
+			{
+			case EInteractionLogType::Error:
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Message);
+				break;
+			case EInteractionLogType::Log:
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, Message);
+				break;
+			case EInteractionLogType::Warning:
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, Message);
+				break;
+			case EInteractionLogType::Success:
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, Message);
+				break;
+			}
+		}
+
 		switch (InLogType)
 		{
 		case EInteractionLogType::Error:
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Message);
+			UE_LOG(InteractionDebug, Error, TEXT("%s"), *Message);
 			break;
 		case EInteractionLogType::Log:
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, Message);
+			UE_LOG(InteractionDebug, Log, TEXT("%s"), *Message);
 			break;
 		case EInteractionLogType::Warning:
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, Message);
+			UE_LOG(InteractionDebug, Warning, TEXT("%s"), *Message);
 			break;
 		case EInteractionLogType::Success:
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, Message);
+			UE_LOG(InteractionDebug, Display, TEXT("%s"), *Message);
 			break;
 		}
-	}
-
-	switch (InLogType)
-	{
-	case EInteractionLogType::Error:
-		UE_LOG(InteractionDebug, Error, TEXT("%s"), *Message);
-		break;
-	case EInteractionLogType::Log:
-		UE_LOG(InteractionDebug, Log, TEXT("%s"), *Message);
-		break;
-	case EInteractionLogType::Warning:
-		UE_LOG(InteractionDebug, Warning, TEXT("%s"), *Message);
-		break;
-	case EInteractionLogType::Success:
-		UE_LOG(InteractionDebug, Display, TEXT("%s"), *Message);
-		break;
-	}
+	#endif
 }
 
 bool UInteractionComponent::SetTargetActor(AActor* NewTarget)
@@ -104,9 +106,7 @@ bool UInteractionComponent::SetTargetActor(AActor* NewTarget)
 	if (!IsValid(TargetActor))
 	{
 		if (NewTarget->Implements<UInteractionInterface>())
-		{
 			IInteractionInterface::Execute_BecomeTarget(NewTarget);
-		}
 
 		TargetActor = NewTarget;
 		OnTargetActorUpdated.Broadcast(NewTarget);
@@ -118,14 +118,10 @@ bool UInteractionComponent::SetTargetActor(AActor* NewTarget)
 		if (TargetActor != NewTarget)
 		{
 			if (TargetActor->Implements<UInteractionInterface>())
-			{
 				IInteractionInterface::Execute_ForgottenAsTarget(TargetActor);
-			}
 
 			if (NewTarget->Implements<UInteractionInterface>())
-			{
 				IInteractionInterface::Execute_BecomeTarget(NewTarget);
-			}
 
 			TargetActor = NewTarget;
 			OnTargetActorUpdated.Broadcast(NewTarget);
@@ -147,9 +143,7 @@ bool UInteractionComponent::ClearTargetActor()
 		return false;
 
 	if (TargetActor->Implements<UInteractionInterface>())
-	{
 		IInteractionInterface::Execute_ForgottenAsTarget(TargetActor);
-	}
 
 	OnTargetActorForgotten.Broadcast(TargetActor);
 	TargetActor = NULL;
@@ -206,20 +200,14 @@ void UInteractionComponent::PerformInteractionTrace()
 
 	// Set the target actor if hit
 	if (bHit && HitResult.GetActor())
-	{
 		SetTargetActor(HitResult.GetActor());
-	}
 	else
-	{
 		ClearTargetActor();
-	}
 }
 
 void UInteractionComponent::InteractWithTargetActor()
 {
 	if (IsValid(TargetActor) && TargetActor->Implements<UInteractionInterface>())
-	{
 		IInteractionInterface::Execute_Interact(TargetActor);
-	}
 }
 

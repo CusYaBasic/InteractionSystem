@@ -36,7 +36,6 @@ public:
 	FOnTargetActorUpdated OnTargetActorUpdated;
 	UPROPERTY(BlueprintAssignable, Category = "Interact|Bind")
 	FOnTargetActorForgotten OnTargetActorForgotten;
-
 	// Current interactable target actor
 	UPROPERTY(BlueprintReadWrite, Category = "Interact|Checks")
 	AActor* TargetActor;

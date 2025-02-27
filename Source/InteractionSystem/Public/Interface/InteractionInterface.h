@@ -25,11 +25,9 @@ public:
 	// Function for interacting with the object
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void Interact();
-
 	// Function to make this object a target
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void BecomeTarget();
-
 	// Function to forget this object as a target
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void ForgottenAsTarget();
