@@ -38,7 +38,10 @@ public:
 	FOnTargetActorForgotten OnTargetActorForgotten;
 	// Current interactable target actor
 	UPROPERTY(BlueprintReadWrite, Category = "Interact|Checks")
-	AActor* TargetActor;
+	AActor* TargetActor = nullptr;
+
+private:
+	FTimerHandle TraceTimerHandle; // Handle for repeated traces
 
 protected:
 
@@ -61,10 +64,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interact|Data")
 	float InteractionStartOffset = 0.0f;
 
-	FTimerHandle TraceTimerHandle; // Timer for repeated traces
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	// Overides for clean up
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
 
@@ -110,9 +114,6 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// Overides for clean up
-	virtual void Deactivate() override;
-	virtual void OnUnregister() override;
 
 	/**
 	 * @brief Start Interaction Trace

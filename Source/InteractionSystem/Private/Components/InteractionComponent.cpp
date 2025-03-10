@@ -21,6 +21,14 @@ void UInteractionComponent::BeginPlay()
 	
 }
 
+void UInteractionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	StopInteractionTrace();
+	HandleDebug(EInteractionLogType::Log, "UInteractionComponent has been destroyed");
+
+	Super::EndPlay(EndPlayReason);
+}
+
 
 void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -29,27 +37,9 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
-void UInteractionComponent::Deactivate()
-{
-	Super::Deactivate();
-
-	HandleDebug(EInteractionLogType::Log, "UInteractionComponent has been deactivated");
-	StopInteractionTrace();
-	ClearTargetActor();
-}
-
-void UInteractionComponent::OnUnregister()
-{
-	Super::OnUnregister();
-
-	HandleDebug(EInteractionLogType::Log, "UInteractionComponent has been unregistered");
-	StopInteractionTrace();
-	ClearTargetActor();
-}
-
 void UInteractionComponent::HandleDebug(EInteractionLogType InLogType, FString Message)
 {
-	#if !UE_SHIPPING_BUILD
+	#if !UE_BUILD_SHIPPING
 		if (bPrintDebug)
 		{
 			switch (InLogType)
@@ -146,7 +136,7 @@ bool UInteractionComponent::ClearTargetActor()
 		IInteractionInterface::Execute_ForgottenAsTarget(TargetActor);
 
 	OnTargetActorForgotten.Broadcast(TargetActor);
-	TargetActor = NULL;
+	TargetActor = nullptr;
 	return true;
 }
 
@@ -158,6 +148,9 @@ void UInteractionComponent::StartInteractionTrace()
 
 void UInteractionComponent::StopInteractionTrace()
 {
+	if (!GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+		return;
+
 	GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
 }
 
@@ -169,38 +162,38 @@ bool UInteractionComponent::IsRunning()
 void UInteractionComponent::PerformInteractionTrace()
 {
 
-	AActor* Owner = GetOwner();
-	if (!Owner)
+	AActor* O = GetOwner();
+	if (!O)
 		return;
 
-	APlayerController* PlayerController = Cast<APlayerController>(Owner->GetInstigatorController());
-	if (!PlayerController)
+	APlayerController* PC = Cast<APlayerController>(O->GetInstigatorController());
+	if (!PC)
 		return;
 
 	// Get the player's camera location and direction
-	FVector CameraLocation;
-	FRotator CameraRotation;
-	PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
-	FVector TraceEnd = CameraLocation + CameraRotation.Vector() * InteractionRange;
-	CameraLocation = CameraLocation + CameraRotation.Vector() * InteractionStartOffset;
+	FVector CL;
+	FRotator CR;
+	PC->GetPlayerViewPoint(CL, CR);
+	FVector TE = CL + CR.Vector() * InteractionRange;
+	CL = CL + CR.Vector() * InteractionStartOffset;
 
 	// Define trace parameters
-	FHitResult HitResult;
-	FCollisionQueryParams TraceParams(FName(TEXT("InteractionTrace")), false, Owner);
+	FHitResult HR;
+	FCollisionQueryParams TP(FName(TEXT("InteractionTrace")), false, O);
 
 	// Perform the trace
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, TraceEnd, ECC_Visibility, TraceParams);
+	bool bH = GetWorld()->LineTraceSingleByChannel(HR, CL, TE, ECC_Visibility, TP);
 
 	// Debug draw if enabled
 	if (bPrintDebugTrace)
 	{
-		FColor LineColor = bHit ? FColor::Green : FColor::Red;
-		DrawDebugLine(GetWorld(), CameraLocation, TraceEnd, LineColor, false, 0.1f, 0, 2.0f);
+		FColor LC = bH ? FColor::Green : FColor::Red;
+		DrawDebugLine(GetWorld(), CL, TE, LC, false, 0.1f, 0, 2.0f);
 	}
 
 	// Set the target actor if hit
-	if (bHit && HitResult.GetActor())
-		SetTargetActor(HitResult.GetActor());
+	if (bH && HR.GetActor())
+		SetTargetActor(HR.GetActor());
 	else
 		ClearTargetActor();
 }
